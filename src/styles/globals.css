@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Instrument Serif", Georgia, serif;
+  --font-body: "Figtree", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "Courier New", monospace;
+}
+
+:root {
+  --bg-primary: #0a0a0e;
+  --bg-secondary: #101015;
+  --bg-surface: #16161d;
+  --bg-elevated: #1e1e27;
+  --accent: #d8d4ec;
+  --accent-hover: #eae7f7;
+  --accent-glow: rgba(216, 212, 236, 0.10);
+  --facts: #4dd9c0;
+  --facts-glow: rgba(77, 217, 192, 0.14);
+  --beliefs: #e8a94d;
+  --beliefs-glow: rgba(232, 169, 77, 0.14);
+  --questions: #b088e8;
+  --questions-glow: rgba(176, 136, 232, 0.14);
+  --text-primary: #eeecf5;
+  --text-secondary: #8a889c;
+  --text-muted: #4a4856;
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-default: rgba(255, 255, 255, 0.08);
+  --success: #22c55e;
+  --error: #ef4444;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+html {
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+  opacity: 0.035;
+}
+
+@keyframes spectralCycle {
+  0%,
+  100% {
+    background: radial-gradient(
+      circle at 50% 20%,
+      var(--facts-glow),
+      transparent 60%
+    );
+  }
+  33% {
+    background: radial-gradient(
+      circle at 50% 20%,
+      var(--beliefs-glow),
+      transparent 60%
+    );
+  }
+  66% {
+    background: radial-gradient(
+      circle at 50% 20%,
+      var(--questions-glow),
+      transparent 60%
+    );
+  }
+}
+
+.spectral-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  animation: spectralCycle 24s ease-in-out infinite;
+}
+
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-default);
+  position: relative;
+}
+
+.liquid-glass-strong {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid var(--border-default);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.10);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.namespace-card:hover {
+  box-shadow: 0 8px 24px var(--hover-shadow);
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+}
