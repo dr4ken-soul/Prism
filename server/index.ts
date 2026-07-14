@@ -25,6 +25,27 @@ const distPath = path.resolve(__dirname, '../dist')
 app.use(cors())
 app.use(express.json({ limit: '1mb' }))
 
+// Lazy hydration for Serverless cold starts
+let isHydrated = false
+const ensureHydrated = async () => {
+  if (!isHydrated) {
+    await hydrateSessionFromWalrus()
+    isHydrated = true
+  }
+}
+
+// Middleware to ensure hydration on Vercel
+app.use('/api', (req, res, next) => {
+  if (process.env.VERCEL) {
+    ensureHydrated().then(() => next()).catch((error) => {
+      logger.error('Failed to hydrate session on Serverless cold start', error)
+      next()
+    })
+  } else {
+    next()
+  }
+})
+
 /**
  * Formats labelled recall results into a system context block.
  * @param context - recall results per namespace
@@ -153,25 +174,31 @@ app.post('/api/chat', async (req, res) => {
 /**
  * Serve the built console in production so one process can host API + UI.
  */
-app.use(express.static(distPath))
-app.get(/^(?!\/api).*/, (req, res, next) => {
-  if (req.method !== 'GET') {
-    next()
-    return
-  }
-  res.sendFile(path.join(distPath, 'index.html'), (err) => {
-    if (err) next()
-  })
-})
-
-resolveAgentAddress().then(async (address) => {
-  await hydrateSessionFromWalrus()
-  app.listen(port, () => {
-    const providers = getProviderStatus()
-    logger.info(`Prism server listening on :${port}`, {
-      memwal: isMemWalConfigured(),
-      llm: providers,
-      agentAddress: address,
+if (!process.env.VERCEL) {
+  app.use(express.static(distPath))
+  app.get(/^(?!\/api).*/, (req, res, next) => {
+    if (req.method !== 'GET') {
+      next()
+      return
+    }
+    res.sendFile(path.join(distPath, 'index.html'), (err) => {
+      if (err) next()
     })
   })
-})
+}
+
+if (!process.env.VERCEL) {
+  resolveAgentAddress().then(async (address) => {
+    await ensureHydrated()
+    app.listen(port, () => {
+      const providers = getProviderStatus()
+      logger.info(`Prism server listening on :${port}`, {
+        memwal: isMemWalConfigured(),
+        llm: providers,
+        agentAddress: address,
+      })
+    })
+  })
+}
+
+export default app
